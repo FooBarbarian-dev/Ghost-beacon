@@ -9,6 +9,35 @@ import streamlit as st
 from sqlalchemy import create_engine, text
 from typing import Optional, Any, Dict, List, Tuple
 
+def get_readonly_connection_params() -> dict:
+    """Connection params using the llm_readonly role. For LLM-generated queries only."""
+    return {
+        "host": os.environ.get("POSTGRES_HOST", "postgres"),
+        "port": int(os.environ.get("POSTGRES_PORT", "5432")),
+        "dbname": os.environ.get("POSTGRES_DB", "ghostwriter"),
+        "user": os.environ.get("POSTGRES_READONLY_USER", "llm_readonly"),
+        "password": os.environ.get("POSTGRES_READONLY_PASSWORD", "llmreadonly"),
+    }
+
+def run_readonly_query(sql: str, timeout_seconds: int = 30) -> pd.DataFrame:
+    """
+    Execute a SQL query using the read-only role.
+
+    Used by the chat page for LLM-generated queries.
+    Sets a statement_timeout to prevent runaway queries.
+
+    Raises psycopg2.Error on failure.
+    """
+    params = get_readonly_connection_params()
+    conn = psycopg2.connect(**params)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f"SET statement_timeout = '{timeout_seconds}s';")
+
+        return pd.read_sql_query(sql, conn)
+    finally:
+        conn.close()
+
 def get_connection_string() -> str:
     """Returns the PostgreSQL connection string."""
     host = os.environ.get("POSTGRES_HOST", "localhost")

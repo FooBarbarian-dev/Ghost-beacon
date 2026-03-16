@@ -217,16 +217,43 @@ Visualization: Pie chart.
 - Chat interface for future LLM-powered natural language querying
 - All analysis queries visible in `streamlit_app/lib/queries.py`
 
-## Future: LLM Integration
+**LLM-Powered Data Exploration**
 
-The Streamlit app includes a chat interface stub ready for local LLM connection. To enable:
+The Streamlit chat interface supports natural-language querying via a vLLM backend.
 
-1. Add an Ollama (or similar) service to `docker-compose.yml`
-2. Set `LLM_ENDPOINT=http://ollama:11434` on the streamlit service
-3. Implement the `ask()` function in `streamlit_app/lib/llm.py`
-4. LLM-generated queries use the `llm_readonly` PostgreSQL role for safety
+**Quick start:**
+```bash
+# Point to the vLLM endpoint
+LLM_ENDPOINT=http://argus.1st-edge.com/v1 docker compose up
+```
 
-The schema context sent to the LLM is defined in `lib/llm.py` as `DB_SCHEMA_CONTEXT`. This is the most important piece to keep accurate — it determines whether the model generates correct SQL.
+Or add to a `.env` file in the project root:
+```
+LLM_ENDPOINT=http://argus.1st-edge.com/v1
+LLM_MODEL=claydog
+```
+
+**How it works:**
+1. Type a question in natural language on the Chat page
+2. The question + database schema are sent to the vLLM endpoint (`claydog` model)
+3. The model generates a PostgreSQL query
+4. The query is validated (write operations rejected) and test-executed
+5. If execution fails, the error is sent back to the model for self-correction (up to 2 retries)
+6. Results are displayed as a table
+
+**Using a different model or endpoint:**
+
+The LLM integration is endpoint-agnostic — it works with any OpenAI-compatible API (vLLM, Ollama with OpenAI compatibility mode, llama-cpp-python, or even OpenAI itself). Just set `LLM_ENDPOINT` and `LLM_MODEL`:
+
+```bash
+# Ollama (if you prefer local)
+LLM_ENDPOINT=http://localhost:11434/v1 LLM_MODEL=qwen2.5-coder:7b docker compose up
+
+# OpenAI (if you want to compare)
+LLM_ENDPOINT=https://api.openai.com/v1 LLM_MODEL=gpt-4o LLM_API_KEY=sk-... docker compose up
+```
+
+**Security:** LLM-generated queries run under a read-only PostgreSQL role (`llm_readonly`). Even if the model generates a write statement, it is both rejected by the application layer and would fail at the database level.
 
 ## Future Direction
 

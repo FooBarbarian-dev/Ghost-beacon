@@ -55,3 +55,15 @@ Ghostwriter-compatible oplog database via GraphQL.
 - Implement ask() in lib/llm.py
 - Use llm_readonly PostgreSQL role for LLM-generated queries
 - DB_SCHEMA_CONTEXT is the system prompt — modify it if schema changes
+### LLM Integration (added in third task)
+- Backend: vLLM (external, OpenAI-compatible API)
+- Default endpoint: http://argus.1st-edge.com/v1
+- Default model: claydog
+- API format: POST /v1/chat/completions (OpenAI-compatible)
+- No authentication required (supports optional LLM_API_KEY env var for future use)
+- Pipeline: question → prompt → vLLM /v1/chat/completions → extract SQL → validate → test-execute → self-correct on failure (max 2 retries)
+- Safety: SQL validation rejects write statements; llm_readonly PostgreSQL role enforces read-only at DB level
+- Key file: lib/llm.py — contains SYSTEM_PROMPT, DB_SCHEMA_CONTEXT, and the full pipeline
+- Self-correction: on execution failure, error is sent back to model as a new message in the conversation
+- Temperature: 0 (deterministic output for SQL generation)
+- No Ollama, no local model serving — the LLM runs externally on argus.1st-edge.com

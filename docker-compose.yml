@@ -127,7 +127,10 @@ services:
       POSTGRES_PASSWORD: ghostwriter
       HASURA_URL: http://graphql_engine:8080/v1/graphql
       HASURA_ADMIN_SECRET: myadminsecret
-      LLM_ENDPOINT: ""  # Empty = chat stub only. Future: http://ollama:11434
+      LLM_ENDPOINT: ${LLM_ENDPOINT:-}                  # Empty = stub mode. Set to http://argus.1st-edge.com/v1
+      LLM_MODEL: ${LLM_MODEL:-claydog}                 # vLLM model name
+      POSTGRES_READONLY_USER: llm_readonly              # Read-only role for LLM queries
+      POSTGRES_READONLY_PASSWORD: llmreadonly
     ports:
       - "8501:8501"
 
