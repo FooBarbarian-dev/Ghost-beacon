@@ -6,6 +6,4 @@
         from_env: HASURA_GRAPHQL_DATABASE_URL
       isolation_level: read-committed
       use_prepared_statements: true
-  tables:
-    - "!include databases/default/tables/public_oplog_oplog.yaml"
-    - "!include databases/default/tables/public_oplog_oplogentry.yaml"
+  tables: "!include default/tables/tables.yaml"

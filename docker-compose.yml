@@ -15,7 +15,7 @@ services:
       retries: 10
 
   graphql_engine:
-    image: hasura/graphql-engine:v2.40.0
+    image: hasura/graphql-engine:v2.40.0.cli-migrations-v3
     depends_on:
       postgres:
         condition: service_healthy
