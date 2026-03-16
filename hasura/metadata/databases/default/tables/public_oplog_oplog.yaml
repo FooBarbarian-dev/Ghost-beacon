@@ -1,0 +1,11 @@
+table:
+  name: oplog_oplog
+  schema: public
+array_relationships:
+  - name: entries
+    using:
+      foreign_key_constraint_on:
+        column: oplog_id_id
+        table:
+          name: oplog_oplogentry
+          schema: public

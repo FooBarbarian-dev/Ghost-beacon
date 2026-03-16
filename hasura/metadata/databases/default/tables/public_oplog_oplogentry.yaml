@@ -1,0 +1,7 @@
+table:
+  name: oplog_oplogentry
+  schema: public
+object_relationships:
+  - name: oplog
+    using:
+      foreign_key_constraint_on: oplog_id_id
