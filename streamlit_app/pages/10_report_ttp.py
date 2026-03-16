@@ -76,7 +76,7 @@ if not df_inferences.empty:
         df_inferences = pd.concat([df_inferences, new_rows], ignore_index=True)
 
     # Add ATT&CK Links
-    df_inferences['attack_id_link'] = df_inferences['attack_id'].apply(lambda x: f"[{x}](https://attack.mitre.org/techniques/{x.split('.')[0]}/)")
+    df_inferences['attack_id_link'] = df_inferences['attack_id'].apply(lambda x: f"https://attack.mitre.org/techniques/{x.split('.')[0]}/")
 
     # Calculate Percentage
     total_beacons = df_inferences[df_inferences['attack_id'] == 'T1608.001']['beacon_count'].sum() # Use Stage Capabilities as total since all beacons are staged
@@ -85,8 +85,22 @@ if not df_inferences.empty:
     else:
         df_inferences['percentage'] = "N/A"
 
-    display_cols = ['attack_id_link', 'technique', 'tactic', 'beacon_count', 'percentage', 'inference_basis']
-    st.markdown(df_inferences[display_cols].to_markdown(index=False))
+    display_cols = ['attack_id', 'attack_id_link', 'technique', 'tactic', 'beacon_count', 'percentage', 'inference_basis']
+
+    st.dataframe(
+        df_inferences[display_cols],
+        column_config={
+            "attack_id_link": st.column_config.LinkColumn("ATT&CK Link", display_text="Link"),
+            "attack_id": "ID",
+            "technique": "Technique",
+            "tactic": "Tactic",
+            "beacon_count": "Count",
+            "percentage": "%",
+            "inference_basis": "Basis",
+        },
+        hide_index=True,
+        use_container_width=True
+    )
 
     # Detailed Expanders
     st.divider()

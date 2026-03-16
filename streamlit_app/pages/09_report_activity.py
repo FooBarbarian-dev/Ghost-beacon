@@ -107,9 +107,9 @@ else:
 # 4. New Infrastructure
 st.subheader(f"New Infrastructure Detection (by {granularity})")
 
-df_new_ips = run_query(ACTIVITY_NEW_INFRA_IPS, {"granularity": granularity})
-df_new_domains = run_query(ACTIVITY_NEW_INFRA_DOMAINS, {"granularity": granularity})
-df_new_versions = run_query(ACTIVITY_NEW_INFRA_VERSIONS, {"granularity": granularity})
+df_new_ips = run_query(ACTIVITY_NEW_INFRA_IPS, params)
+df_new_domains = run_query(ACTIVITY_NEW_INFRA_DOMAINS, params)
+df_new_versions = run_query(ACTIVITY_NEW_INFRA_VERSIONS, params)
 
 if not df_new_ips.empty or not df_new_domains.empty or not df_new_versions.empty:
     df_merged = df_new_ips if not df_new_ips.empty else pd.DataFrame(columns=['period', 'new_ips'])

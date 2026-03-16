@@ -323,7 +323,7 @@ FROM oplog_oplogentry
 WHERE start_date >= :start_date AND start_date <= :end_date
       AND (:ip_filter = 'All' OR source_ip = :ip_filter)
       -- ARRAY_LENGTH Check done in pandas or by injecting versions, but we'll do it with param
-      AND (array_length(:versions_filter::text[], 1) IS NULL OR tool = ANY(:versions_filter::text[]))
+      AND (array_length(CAST(:versions_filter AS text[]), 1) IS NULL OR tool = ANY(CAST(:versions_filter AS text[])))
 ORDER BY start_date DESC;
 """
 
@@ -336,7 +336,7 @@ FROM oplog_oplogentry,
      jsonb_array_elements_text(CASE WHEN jsonb_typeof(extra_fields->'domains') = 'array' THEN extra_fields->'domains' ELSE '[]'::jsonb END) AS domain
 WHERE start_date >= :start_date AND start_date <= :end_date
       AND (:ip_filter = 'All' OR source_ip = :ip_filter)
-      AND (array_length(:versions_filter::text[], 1) IS NULL OR tool = ANY(:versions_filter::text[]))
+      AND (array_length(CAST(:versions_filter AS text[]), 1) IS NULL OR tool = ANY(CAST(:versions_filter AS text[])))
 GROUP BY source_ip, domain
 ORDER BY beacon_count DESC;
 """
@@ -429,7 +429,7 @@ SELECT
     MAX(start_date) AS last_seen
 FROM oplog_oplogentry
 LEFT JOIN jsonb_array_elements_text(CASE WHEN jsonb_typeof(extra_fields->'domains') = 'array' THEN extra_fields->'domains' ELSE '[]'::jsonb END) AS domain ON true
-WHERE source_ip = ANY(:ips::text[])
+WHERE source_ip = ANY(CAST(:ips AS text[]))
 GROUP BY source_ip;
 """
 
@@ -444,7 +444,7 @@ SELECT
 FROM oplog_oplogentry
 WHERE start_date >= :start_date AND start_date <= :end_date
       AND (:ip_filter = '' OR source_ip = :ip_filter)
-      AND (array_length(:versions_filter::text[], 1) IS NULL OR tool = ANY(:versions_filter::text[]))
+      AND (array_length(CAST(:versions_filter AS text[]), 1) IS NULL OR tool = ANY(CAST(:versions_filter AS text[])))
 GROUP BY period, cs_version
 ORDER BY period, beacon_count DESC;
 """
@@ -460,7 +460,7 @@ SELECT
 FROM oplog_oplogentry
 WHERE start_date >= :start_date AND start_date <= :end_date
       AND (:ip_filter = '' OR source_ip = :ip_filter)
-      AND (array_length(:versions_filter::text[], 1) IS NULL OR tool = ANY(:versions_filter::text[]))
+      AND (array_length(CAST(:versions_filter AS text[]), 1) IS NULL OR tool = ANY(CAST(:versions_filter AS text[])))
 ORDER BY start_date DESC;
 """
 
@@ -473,7 +473,7 @@ SELECT
 FROM oplog_oplogentry
 WHERE start_date >= :start_date AND start_date <= :end_date
       AND (:ip_filter = '' OR source_ip = :ip_filter)
-      AND (array_length(:versions_filter::text[], 1) IS NULL OR tool = ANY(:versions_filter::text[]))
+      AND (array_length(CAST(:versions_filter AS text[]), 1) IS NULL OR tool = ANY(CAST(:versions_filter AS text[])))
 GROUP BY month, day_of_week, hour_of_day;
 """
 
@@ -584,7 +584,7 @@ SELECT
 FROM oplog_oplogentry,
     jsonb_array_elements_text(CASE WHEN jsonb_typeof(extra_fields->'domains') = 'array' THEN extra_fields->'domains' ELSE '[]'::jsonb END) AS domain
 WHERE start_date >= :start_date AND start_date <= :end_date
-AND domain LIKE ANY(:cdn_patterns::text[])
+AND domain LIKE ANY(CAST(:cdn_patterns AS text[]))
 GROUP BY domain
 ORDER BY beacon_count DESC;
 """

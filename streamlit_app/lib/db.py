@@ -19,16 +19,16 @@ def get_connection_string() -> str:
     return f"postgresql://{user}:{password}@{host}:{port}/{db}"
 
 @st.cache_data(ttl=300)
-def _run_query_cached(sql: str, params_tuple: Optional[tuple] = None) -> pd.DataFrame:
+def run_query(sql: str, params: Optional[Dict] = None) -> pd.DataFrame:
     """
-    Inner cached function that takes hashable arguments.
+    Connects to the database, runs a SQL query, and returns a pandas DataFrame.
+    DataFrames are cached using Streamlit's cache_data functionality.
     """
     try:
         conn_string = get_connection_string()
         engine = create_engine(conn_string)
         with engine.connect() as conn:
-            if params_tuple:
-                params = dict(params_tuple)
+            if params:
                 df = pd.read_sql_query(text(sql), conn, params=params)
             else:
                 df = pd.read_sql_query(text(sql), conn)
@@ -36,12 +36,3 @@ def _run_query_cached(sql: str, params_tuple: Optional[tuple] = None) -> pd.Data
     except Exception as e:
         st.error(f"Database query error: {e}")
         return pd.DataFrame()
-
-def run_query(sql: str, params: Optional[Dict] = None) -> pd.DataFrame:
-    """
-    Connects to the database, runs a SQL query, and returns a pandas DataFrame.
-    DataFrames are cached using Streamlit's cache_data functionality.
-    """
-    # Convert dict to a hashable tuple of items for caching
-    params_tuple = tuple(sorted(params.items())) if params else None
-    return _run_query_cached(sql, params_tuple)
