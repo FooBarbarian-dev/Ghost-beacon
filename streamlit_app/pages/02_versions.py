@@ -49,7 +49,7 @@ else:
     selected_version = st.selectbox("Select a version to inspect:", versions_list)
 
     if selected_version:
-        df_v_metrics = run_query(VERSION_FILTER_METRICS, params=(selected_version,))
+        df_v_metrics = run_query(VERSION_FILTER_METRICS, params={"selected_version": selected_version})
         if not df_v_metrics.empty:
             v_metrics = df_v_metrics.iloc[0]
             col1, col2, col3 = st.columns(3)
@@ -62,10 +62,10 @@ else:
         col_p, col_d = st.columns(2)
         with col_p:
             st.write("**Top Ports**")
-            df_ports = run_query(VERSION_PORTS, params=(selected_version,))
+            df_ports = run_query(VERSION_PORTS, params={"selected_version": selected_version})
             st.dataframe(df_ports, use_container_width=True, hide_index=True)
 
         with col_d:
             st.write("**Top Domains**")
-            df_domains = run_query(VERSION_DOMAINS, params=(selected_version,))
+            df_domains = run_query(VERSION_DOMAINS, params={"selected_version": selected_version})
             st.dataframe(df_domains, use_container_width=True, hide_index=True)

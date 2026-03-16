@@ -6,6 +6,7 @@ import os
 import psycopg2
 import pandas as pd
 import streamlit as st
+from sqlalchemy import create_engine, text
 from typing import Optional, Any, Dict, List, Tuple
 
 def get_connection_string() -> str:
@@ -18,23 +19,20 @@ def get_connection_string() -> str:
     return f"postgresql://{user}:{password}@{host}:{port}/{db}"
 
 @st.cache_data(ttl=300)
-def run_query(sql: str, params: Optional[Tuple] = None) -> pd.DataFrame:
+def run_query(sql: str, params: Optional[Dict] = None) -> pd.DataFrame:
     """
     Connects to the database, runs a SQL query, and returns a pandas DataFrame.
     DataFrames are cached using Streamlit's cache_data functionality.
     """
-    conn = None
     try:
         conn_string = get_connection_string()
-        conn = psycopg2.connect(conn_string)
-        if params:
-            df = pd.read_sql_query(sql, conn, params=params)
-        else:
-            df = pd.read_sql_query(sql, conn)
+        engine = create_engine(conn_string)
+        with engine.connect() as conn:
+            if params:
+                df = pd.read_sql_query(text(sql), conn, params=params)
+            else:
+                df = pd.read_sql_query(text(sql), conn)
         return df
     except Exception as e:
         st.error(f"Database query error: {e}")
         return pd.DataFrame()
-    finally:
-        if conn:
-            conn.close()

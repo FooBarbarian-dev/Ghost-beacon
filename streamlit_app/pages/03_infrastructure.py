@@ -14,7 +14,7 @@ st.title("🌐 Infrastructure Patterns")
 st.subheader("IP Search")
 search_ip = st.text_input("Search for a specific Team Server IP:")
 if search_ip:
-    df_search = run_query(IP_SEARCH, params=(search_ip,))
+    df_search = run_query(IP_SEARCH, params={"search_ip": search_ip})
     if not df_search.empty:
         st.success(f"Found {len(df_search)} beacons for IP {search_ip}")
         st.dataframe(df_search, use_container_width=True, hide_index=True)

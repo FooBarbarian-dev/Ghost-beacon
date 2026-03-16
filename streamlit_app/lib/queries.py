@@ -73,7 +73,7 @@ SELECT
     MIN(start_date) AS min_date,
     MAX(start_date) AS max_date
 FROM oplog_oplogentry
-WHERE tool = %s;
+WHERE tool = :selected_version;
 """
 
 VERSION_PORTS = """
@@ -81,7 +81,7 @@ SELECT
     (extra_fields->>'collected_from_port')::int AS port,
     COUNT(*) as count
 FROM oplog_oplogentry
-WHERE tool = %s AND extra_fields->>'collected_from_port' IS NOT NULL
+WHERE tool = :selected_version AND extra_fields->>'collected_from_port' IS NOT NULL
 GROUP BY port
 ORDER BY count DESC
 LIMIT 10;
@@ -93,7 +93,7 @@ SELECT
     COUNT(*) as count
 FROM oplog_oplogentry,
   jsonb_array_elements_text(extra_fields->'domains') AS domain
-WHERE tool = %s
+WHERE tool = :selected_version
 GROUP BY domain
 ORDER BY count DESC
 LIMIT 10;
@@ -146,7 +146,7 @@ SELECT
     extra_fields->>'collected_from_port' as port,
     extra_fields->>'tls_subject' as tls_subject
 FROM oplog_oplogentry
-WHERE source_ip = %s
+WHERE source_ip = :search_ip
 ORDER BY start_date DESC;
 """
 
