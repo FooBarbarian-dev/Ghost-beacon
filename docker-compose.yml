@@ -95,6 +95,22 @@ services:
       - "3000:3000"
     volumes:
       - metabase_data:/metabase-data
+    healthcheck:
+      test: curl -f http://localhost:3000/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  metabase_setup:
+    image: python:3.12-slim
+    depends_on:
+      metabase:
+        condition: service_healthy
+    volumes:
+      - ./metabase_setup.py:/app/metabase_setup.py
+    command: python /app/metabase_setup.py
+    environment:
+      METABASE_URL: http://metabase:3000
 
   streamlit:
     build: ./streamlit_app

@@ -93,8 +93,9 @@ After data is loaded, two visualization tools are available:
 
 **Metabase** — `http://localhost:3000`
 - Full BI dashboard tool, connects to PostgreSQL directly
-- First launch: create admin account, add PostgreSQL connection (host: `postgres`, port: 5432, db: `ghostwriter`, user/pass: `ghostwriter`)
-- Starter SQL queries provided below for copy-paste into Native Query
+- Metabase is automatically configured on first launch via a setup script.
+- **Default Login**: `admin@ghostwriter.local` / `Ghostwriter123!`
+- The Postgres database connection is pre-configured. Starter SQL queries are provided below for copy-paste into Native Query.
 
 ### Suggested Starter Questions (for Metabase)
 

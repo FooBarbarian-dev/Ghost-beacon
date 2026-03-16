@@ -38,6 +38,7 @@ Ghostwriter-compatible oplog database via GraphQL.
 ### Metabase (localhost:3000)
 - Zero-code BI dashboards
 - Connects directly to PostgreSQL (not Hasura)
+- Auto-configured via `metabase_setup.py` on first launch
 - Starter SQL queries documented in README
 - User creates dashboards via browser — no code in this repo
 
