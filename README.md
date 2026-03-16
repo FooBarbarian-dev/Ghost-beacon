@@ -87,6 +87,146 @@ docker compose run beacon_loader
 # Should report 0 inserted, all skipped, as they already exist in Redis
 ```
 
+## Visualization
+
+After data is loaded, two visualization tools are available:
+
+**Metabase** — `http://localhost:3000`
+- Full BI dashboard tool, connects to PostgreSQL directly
+- First launch: create admin account, add PostgreSQL connection (host: `postgres`, port: 5432, db: `ghostwriter`, user/pass: `ghostwriter`)
+- Starter SQL queries provided below for copy-paste into Native Query
+
+### Suggested Starter Questions (for Metabase)
+
+**1. Beacon Collection Timeline**
+```sql
+SELECT
+  date_trunc('month', start_date) AS month,
+  COUNT(*) AS beacon_count
+FROM oplog_oplogentry
+WHERE start_date IS NOT NULL
+GROUP BY month
+ORDER BY month;
+```
+Visualization: Line chart. X = month, Y = beacon_count.
+
+**2. Cobalt Strike Version Distribution**
+```sql
+SELECT
+  tool AS cs_version,
+  COUNT(*) AS count
+FROM oplog_oplogentry
+WHERE tool IS NOT NULL
+GROUP BY tool
+ORDER BY count DESC
+LIMIT 20;
+```
+Visualization: Bar chart (horizontal).
+
+**3. Top Team Server IPs**
+```sql
+SELECT
+  source_ip,
+  COUNT(*) AS beacon_count,
+  COUNT(DISTINCT (extra_fields->>'beacon_version')) AS unique_versions,
+  MIN(start_date) AS first_seen,
+  MAX(start_date) AS last_seen
+FROM oplog_oplogentry
+WHERE source_ip IS NOT NULL
+GROUP BY source_ip
+ORDER BY beacon_count DESC
+LIMIT 50;
+```
+Visualization: Table.
+
+**4. Listening Port Distribution**
+```sql
+SELECT
+  (extra_fields->>'collected_from_port')::int AS port,
+  COUNT(*) AS count
+FROM oplog_oplogentry
+WHERE extra_fields->>'collected_from_port' IS NOT NULL
+GROUP BY port
+ORDER BY count DESC;
+```
+Visualization: Pie chart or bar chart.
+
+**5. C2 Domain Frequency**
+```sql
+SELECT
+  domain,
+  COUNT(*) AS beacon_count
+FROM oplog_oplogentry,
+  jsonb_array_elements_text(extra_fields->'domains') AS domain
+GROUP BY domain
+ORDER BY beacon_count DESC
+LIMIT 30;
+```
+Visualization: Bar chart.
+
+**6. XOR Encoding Over Time**
+```sql
+SELECT
+  date_trunc('quarter', start_date) AS quarter,
+  (extra_fields->>'xorencoded')::int AS xor_encoded,
+  COUNT(*) AS count
+FROM oplog_oplogentry
+WHERE start_date IS NOT NULL
+  AND extra_fields->>'xorencoded' IS NOT NULL
+GROUP BY quarter, xor_encoded
+ORDER BY quarter;
+```
+Visualization: Stacked bar chart.
+
+**7. Filesize Distribution**
+```sql
+SELECT
+  CASE
+    WHEN (extra_fields->>'filesize')::int < 100000 THEN '< 100KB'
+    WHEN (extra_fields->>'filesize')::int < 200000 THEN '100-200KB'
+    WHEN (extra_fields->>'filesize')::int < 300000 THEN '200-300KB'
+    WHEN (extra_fields->>'filesize')::int < 500000 THEN '300-500KB'
+    ELSE '500KB+'
+  END AS size_bucket,
+  COUNT(*) AS count
+FROM oplog_oplogentry
+WHERE extra_fields->>'filesize' IS NOT NULL
+GROUP BY size_bucket
+ORDER BY MIN((extra_fields->>'filesize')::int);
+```
+Visualization: Bar chart.
+
+**8. TLS Certificate Usage**
+```sql
+SELECT
+  CASE
+    WHEN extra_fields->>'tls_subject' IS NOT NULL
+      AND extra_fields->>'tls_subject' != 'null'
+      THEN 'Has TLS Subject'
+    ELSE 'No TLS Subject'
+  END AS tls_status,
+  COUNT(*) AS count
+FROM oplog_oplogentry
+GROUP BY tls_status;
+```
+Visualization: Pie chart.
+
+**Streamlit Explorer** — `http://localhost:8501`
+- Pre-built analysis views for beacon version trends, infrastructure patterns, and indicator analysis
+- Chat interface for future LLM-powered natural language querying
+- All analysis queries visible in `streamlit_app/lib/queries.py`
+
+## Future: LLM Integration
+
+The Streamlit app includes a chat interface stub ready for local LLM connection. To enable:
+
+1. Add an Ollama (or similar) service to `docker-compose.yml`
+2. Set `LLM_ENDPOINT=http://ollama:11434` on the streamlit service
+3. Implement the `ask()` function in `streamlit_app/lib/llm.py`
+4. LLM-generated queries use the `llm_readonly` PostgreSQL role for safety
+
+The schema context sent to the LLM is defined in `lib/llm.py` as `DB_SCHEMA_CONTEXT`. This is the most important piece to keep accurate — it determines whether the model generates correct SQL.
+
 ## Future Direction
 
 Replace `beacon_loader` with actual `cobalt_sync` pointed at a live team server. Replace the standalone Postgres/Hasura instances with a real Ghostwriter instance. The oplog schema and GraphQL mutation interface will remain exactly the same.

@@ -32,3 +32,25 @@ Ghostwriter-compatible oplog database via GraphQL.
 - docker compose up — initializes DB, applies Hasura metadata, runs loader
 - Hasura console at http://localhost:8080/console
 - Re-running loader is idempotent (Redis dedup persists via Docker volume)
+
+## Visualization Layer (added in second task)
+
+### Metabase (localhost:3000)
+- Zero-code BI dashboards
+- Connects directly to PostgreSQL (not Hasura)
+- Starter SQL queries documented in README
+- User creates dashboards via browser — no code in this repo
+
+### Streamlit (localhost:8501)
+- Python-based exploration UI
+- Pre-built analysis pages: overview, versions, infrastructure, indicators
+- Chat interface for future LLM integration (currently a stub)
+- lib/llm.py contains DB_SCHEMA_CONTEXT — the prompt that will be sent to the LLM
+- lib/db.py provides run_query() for all PostgreSQL access
+- lib/queries.py stores all SQL as named constants
+
+### Future LLM Integration
+- Set LLM_ENDPOINT env var to local model URL (e.g., http://ollama:11434)
+- Implement ask() in lib/llm.py
+- Use llm_readonly PostgreSQL role for LLM-generated queries
+- DB_SCHEMA_CONTEXT is the system prompt — modify it if schema changes
