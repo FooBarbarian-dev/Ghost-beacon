@@ -46,10 +46,10 @@ with col2:
     if not df_domains.empty:
         fig_domains = px.bar(
             df_domains.head(15),
-            x='count',
+            x='beacon_count',
             y='domain',
             orientation='h',
-            labels={'count': 'Count', 'domain': 'C2 Domain'}
+            labels={'beacon_count': 'Count', 'domain': 'C2 Domain'}
         )
         fig_domains.update_layout(yaxis={'categoryorder':'total ascending'})
         st.plotly_chart(fig_domains, use_container_width=True)
