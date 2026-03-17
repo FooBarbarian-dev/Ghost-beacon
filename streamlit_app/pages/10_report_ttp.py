@@ -122,7 +122,7 @@ if not df_inferences.empty:
                 if not df_trend.empty:
                     fig = px.bar(df_trend, x='quarter', y='beacon_count', height=200, labels={'quarter': 'Quarter', 'beacon_count': 'Count'})
                     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_container_width=True, key=f"trend_{attack_id}")
             else:
                 st.info("Trend visualization not available for heuristic inferences.")
 
@@ -164,7 +164,7 @@ if not df_inferences.empty:
             color_continuous_scale='Blues',
             title="Inferred ATT&CK Techniques Heatmap"
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="ttp_matrix_treemap")
         st.caption("Note: Empty tactics are omitted as no inference is possible from beacon metadata alone.")
 
     # Domain Fronting Analysis
