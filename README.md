@@ -217,6 +217,22 @@ Visualization: Pie chart.
 - Chat interface for future LLM-powered natural language querying
 - All analysis queries visible in `streamlit_app/lib/queries.py`
 
+**Cobalt Strike Report Views**
+
+The Streamlit app includes five views that approximate Cobalt Strike's built-in reports, adapted for the beacon metadata dataset:
+
+| Report | Page | What it shows |
+|---|---|---|
+| Indicators of Compromise | `06_report_ioc.py` | File hashes, C2 domains, team server IPs, TLS certificates. CSV export of hash lists. |
+| Sessions | `07_report_sessions.py` | Per-beacon detail: communication paths, hashes, indicators. Sankey diagram of IP→domain relationships. |
+| Hosts | `08_report_hosts.py` | Team server profiles: beacons served, versions, ports, domains, TLS certs. Host comparison view. |
+| Activity | `09_report_activity.py` | Timeline of beacon collection. Activity heatmap. New infrastructure detection. |
+| Tactics, Techniques, and Procedures | `10_report_ttp.py` | ATT&CK techniques inferred from beacon config. Domain fronting analysis. |
+
+**Not included:** Social Engineering report (requires phishing/click data not present in this dataset).
+
+These reports are *approximations*. Each includes a disclaimer explaining how it differs from the real Cobalt Strike report. The data perspective is inverted: real CS reports document red team activity from the operator's view; our reports analyze beacon configurations collected from the defender's perspective.
+
 ## Future: LLM Integration
 
 The Streamlit app includes a chat interface stub ready for local LLM connection. To enable:

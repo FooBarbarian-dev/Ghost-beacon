@@ -55,3 +55,15 @@ Ghostwriter-compatible oplog database via GraphQL.
 - Implement ask() in lib/llm.py
 - Use llm_readonly PostgreSQL role for LLM-generated queries
 - DB_SCHEMA_CONTEXT is the system prompt — modify it if schema changes
+
+### CS Report Views (added in fourth task)
+- Five new Streamlit pages approximating Cobalt Strike's built-in reports
+- 06_report_ioc.py — Indicators of Compromise (strongest fit, full IOC export)
+- 07_report_sessions.py — Sessions Report (beacons as sessions, communication paths)
+- 08_report_hosts.py — Hosts Report (team server profiles, inverted perspective)
+- 09_report_activity.py — Activity Report (collection timeline, not operator commands)
+- 10_report_ttp.py — TTP Report (ATT&CK inferences from config, limited scope)
+- Social Engineering report NOT included — zero relevant data
+- All reports include disclaimers explaining the approximation
+- Shared utilities in lib/report_utils.py (header, pagination, CSV export)
+- CDN domain patterns for domain fronting detection hardcoded in 10_report_ttp.py
